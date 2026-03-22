@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>لوحة الإدارة</title>
+  <style>
+    body{margin:0;background:#06122f;color:#fff;font-family:Tahoma,Arial,sans-serif}
+    .wrap{max-width:1100px;margin:auto;padding:20px}
+    .card{background:#0b1b47;border:1px solid #1d3d8f;border-radius:18px;padding:16px;margin-bottom:14px}
+    input,select,button{padding:12px;border-radius:12px;border:1px solid #2a468f;background:#08183e;color:#fff}
+    button{background:#37c95d;color:#05210d;font-weight:bold;cursor:pointer}
+    .muted{opacity:.8}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>لوحة الإدارة</h1>
+    <div class="card">
+      <input id="password" placeholder="كلمة مرور الإدارة" value="admin123">
+      <button id="loadBtn">تحميل الطلبات</button>
+    </div>
+    <div id="orders"></div>
+  </div>
+
+  <script>
+    const ordersEl = document.getElementById('orders');
+
+    async function loadOrders() {
+      const password = document.getElementById('password').value;
+      const res = await fetch('/api/orders', { headers: { 'x-admin-password': password }});
+      const data = await res.json();
+      if (!data.ok) {
+        ordersEl.innerHTML = '<div class="card">فشل التحميل: ' + data.message + '</div>';
+        return;
+      }
+
+      if (!data.orders.length) {
+        ordersEl.innerHTML = '<div class="card">لا توجد طلبات.</div>';
+        return;
+      }
+
+      ordersEl.innerHTML = data.orders.map(order => `
+        <div class="card">
+          <h3>${order.id}</h3>
+          <div class="muted">الاسم: ${order.customerName || '-'}</div>
+          <div class="muted">الجوال: ${order.customerPhone || '-'}</div>
+          <div class="muted">المنطقة: ${order.customerArea || '-'}</div>
+          <div class="muted">الدفع: ${order.customerPay || '-'}</div>
+          <div class="muted">التاريخ: ${new Date(order.createdAt).toLocaleString('ar-SA')}</div>
+          <div style="margin-top:10px">${order.items.map(i => `<div>• ${i.title} × ${i.qty} = ${i.lineTotal} ر.ي</div>`).join('')}</div>
+          <div style="margin-top:10px"><strong>الإجمالي: ${order.total} ر.ي</strong></div>
+          <div style="margin-top:10px">
+            <select onchange="updateStatus('${order.id}', this.value)">
+              ${['جديد','قيد المراجعة','تم التواصل','مكتمل','ملغي'].map(s => `<option ${s===order.status?'selected':''}>${s}</option>`).join('')}
+            </select>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    async function updateStatus(id, status) {
+      const password = document.getElementById('password').value;
+      const res = await fetch('/api/orders/' + id + '/status', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json', 'x-admin-password': password },
+        body: JSON.stringify({ status })
+      });
+      const data = await res.json();
+      if (!data.ok) alert(data.message || 'تعذر تحديث الحالة');
+    }
+
+    document.getElementById('loadBtn').addEventListener('click', loadOrders);
+  </script>
+</body>
+</html>
