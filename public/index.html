@@ -642,7 +642,7 @@
             <div class="invoice-side right">
               <div>الضيبي للتجارة العامة - 2</div>
               <div style="margin-top:12px">صنعاء المشهد</div>
-              <div>ذمار - الشارق سيتي</div>
+              <div>ذمار - مدينة الشرق </div>
               <div>جوال: 774896236 / 777809441</div>
               <div>تلفون / 06455426 / 06455774</div>
             </div>
@@ -669,7 +669,7 @@
             <td class="meta-label">رقم الفاتورة</td>
             <td class="meta-value">${billNo}</td>
             <td class="meta-label">نوع الفاتورة</td>
-            <td class="meta-value">أجل</td>
+            <td class="meta-value">أجل-نقد-تحويل</td>
             <td class="meta-label">التاريخ</td>
             <td class="meta-value">${date}</td>
             <td class="meta-label">العملة</td>
@@ -691,7 +691,7 @@
           </tr>
           <tr>
             <td class="meta-value" colspan="8" style="text-align:center;font-weight:bold;background:#c5dfdd">
-              ${customer.customerNotes || 'عليكم فاتورة مبيعات رقم الطلب'}
+              ${customer.customerNotes || 'عليكم فاتورة مبيعات  '}
             </td>
           </tr>
         </table>
@@ -704,7 +704,6 @@
               <th>الوحدة</th>
               <th>العدد</th>
               <th>سعر البيع</th>
-              <th>الخصم</th>
               <th>الإجمالي</th>
             </tr>
           </thead>
