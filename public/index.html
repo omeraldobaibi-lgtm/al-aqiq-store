@@ -4,27 +4,146 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>متجر العقيق</title>
+
   <style>
-    body{margin:0;background:#06122f;color:#fff;font-family:Tahoma,Arial,sans-serif}
-    .wrap{max-width:1100px;margin:auto;padding:20px}
-    h1,h2{margin:0 0 16px}
-    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px}
-    .card{background:#0b1b47;border:1px solid #1d3d8f;border-radius:18px;padding:16px}
-    button{background:#37c95d;color:#05210d;border:none;border-radius:12px;padding:12px 16px;font-weight:bold;cursor:pointer}
-    .secondary{background:#142a66;color:#fff}
-    input,textarea,select{width:100%;box-sizing:border-box;padding:12px;border-radius:12px;border:1px solid #2a468f;background:#08183e;color:#fff}
-    textarea{min-height:90px}
-    .row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
-    .muted{opacity:.8}
-    .total{font-size:24px;font-weight:bold}
-    .success{background:#0d4f33;padding:14px;border-radius:14px;margin-top:14px;display:none}
-    @media(max-width:700px){.row{grid-template-columns:1fr}}
+    body{
+      margin:0;
+      background:#06122f;
+      color:#fff;
+      font-family:Tahoma,Arial,sans-serif
+    }
+    .wrap{
+      max-width:1100px;
+      margin:auto;
+      padding:20px
+    }
+    h1,h2{
+      margin:0 0 16px
+    }
+    .grid{
+      display:grid;
+      grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+      gap:16px
+    }
+    .card{
+      background:#0b1b47;
+      border:1px solid #1d3d8f;
+      border-radius:18px;
+      padding:16px
+    }
+    button{
+      background:#37c95d;
+      color:#05210d;
+      border:none;
+      border-radius:12px;
+      padding:12px 16px;
+      font-weight:bold;
+      cursor:pointer
+    }
+    button:hover{
+      opacity:.95
+    }
+    .secondary{
+      background:#142a66;
+      color:#fff
+    }
+    .warning{
+      background:#b52626;
+      color:#fff
+    }
+    .info{
+      background:#f2b233;
+      color:#111
+    }
+    input,textarea,select{
+      width:100%;
+      box-sizing:border-box;
+      padding:12px;
+      border-radius:12px;
+      border:1px solid #2a468f;
+      background:#08183e;
+      color:#fff
+    }
+    textarea{
+      min-height:90px
+    }
+    .row{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:14px
+    }
+    .muted{
+      opacity:.8
+    }
+    .total{
+      font-size:24px;
+      font-weight:bold
+    }
+    .success{
+      background:#0d4f33;
+      padding:14px;
+      border-radius:14px;
+      margin-top:14px;
+      display:none
+    }
+    .actions{
+      display:flex;
+      gap:12px;
+      margin-top:14px;
+      flex-wrap:wrap
+    }
+    .qty-wrap{
+      display:flex;
+      align-items:center;
+      gap:8px
+    }
+    .qty-btn{
+      min-width:38px;
+      padding:8px 10px;
+      border-radius:10px
+    }
+    .order-image-box{
+      background:#0b1b47;
+      border:1px solid #1d3d8f;
+      border-radius:18px;
+      padding:20px;
+      color:#fff;
+      width:900px;
+      max-width:100%;
+      direction:rtl
+    }
+    .order-image-box h2{
+      margin-bottom:12px
+    }
+    .order-image-box .line{
+      margin:8px 0;
+      padding:10px 0;
+      border-bottom:1px solid rgba(255,255,255,.12)
+    }
+    .order-image-box .final-total{
+      margin-top:14px;
+      font-size:24px;
+      font-weight:bold
+    }
+    .hidden-capture{
+      position:fixed;
+      right:-99999px;
+      top:0;
+      z-index:-1
+    }
+    @media(max-width:700px){
+      .row{
+        grid-template-columns:1fr
+      }
+    }
   </style>
+
+  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 </head>
 <body>
   <div class="wrap">
     <h1>متجر العقيق</h1>
-    <p class="muted"> يمكنك الدفع عبر المحافظ الالكترونية .. جوالي . جيب .او ارسالة حوالة باسم : شركة مسحوق العقيق للمنظفات</p>
+    <p class="muted">يمكنك الدفع عبر المحافظ الإلكترونية .. جوالي . جيب . أو إرسال حوالة باسم: شركة مسحوق العقيق للمنظفات</p>
 
     <div class="grid" id="products"></div>
 
@@ -37,17 +156,21 @@
         <input id="customerName" placeholder="الاسم الكامل">
         <input id="customerPhone" placeholder="رقم الجوال">
       </div>
+
       <div class="row" style="margin-top:12px">
         <input id="customerArea" placeholder="المدينة / المنطقة">
         <input id="customerPay" placeholder="طريقة الدفع">
       </div>
+
       <div style="margin-top:12px">
         <textarea id="customerNotes" placeholder="ملاحظات الطلب"></textarea>
       </div>
 
-      <div style="display:flex;gap:12px;margin-top:14px;flex-wrap:wrap">
+      <div class="actions">
         <button id="submitBtn">إرسال الطلب إلى الشركة</button>
-        <button class="secondary" id="clearBtn">تفريغ السلة</button>
+        <button class="secondary" id="copyBtn">نسخ الطلب</button>
+        <button class="info" id="downloadImageBtn">تحميل صورة الطلب</button>
+        <button class="warning" id="clearBtn">تفريغ السلة</button>
       </div>
 
       <div id="successBox" class="success"></div>
@@ -61,35 +184,67 @@
     const totalEl = document.getElementById('total');
     const successBox = document.getElementById('successBox');
 
-    function money(v){ return Number(v || 0).toLocaleString('ar-SA'); }
+    function money(v) {
+      return Number(v || 0).toLocaleString('ar-SA');
+    }
+
+    function productLabel(product) {
+      const title = product.title || 'منتج';
+      const size = product.size || '';
+      const pack = product.pack || '';
+      const unit = product.unit || 'عبوة';
+
+      if (size && pack) return `${title} ${unit} ${size} × ${pack}`;
+      if (size) return `${title} ${unit} ${size}`;
+      return `${title} ${unit}`;
+    }
+
+    function productPriceLabel(product) {
+      return `${money(product.price)} ر.ي / ${product.unit || 'عبوة'}`;
+    }
+
+    function getCartItems() {
+      return [...cart.values()];
+    }
+
+    function getCartTotal() {
+      return getCartItems().reduce((sum, item) => sum + (item.price * item.qty), 0);
+    }
 
     function renderCart() {
-      const items = [...cart.values()];
+      const items = getCartItems();
+
       if (!items.length) {
         cartListEl.innerHTML = 'السلة فارغة حاليًا.';
         totalEl.textContent = '0';
         return;
       }
+
       let total = 0;
+
       cartListEl.innerHTML = items.map(item => {
         const line = item.price * item.qty;
         total += line;
+
         return `
           <div class="card" style="margin-bottom:8px">
-            <div style="display:flex;justify-content:space-between;gap:8px;align-items:center">
-              <strong>${item.title}</strong>
-              <span>${money(item.price)} ر.ي / ${item.unit}</span>
+            <div style="display:flex;justify-content:space-between;gap:8px;align-items:center;flex-wrap:wrap">
+              <strong>${productLabel(item)}</strong>
+              <span>${productPriceLabel(item)}</span>
             </div>
-            <div style="display:flex;justify-content:space-between;gap:8px;align-items:center;margin-top:10px">
-              <div>
-                <button onclick="changeQty('${item.id}', -1)" class="secondary">-</button>
+
+            <div style="display:flex;justify-content:space-between;gap:8px;align-items:center;margin-top:10px;flex-wrap:wrap">
+              <div class="qty-wrap">
+                <button onclick="changeQty('${item.id}', -1)" class="secondary qty-btn">-</button>
                 <span style="padding:0 10px">${item.qty}</span>
-                <button onclick="changeQty('${item.id}', 1)" class="secondary">+</button>
+                <button onclick="changeQty('${item.id}', 1)" class="secondary qty-btn">+</button>
               </div>
               <strong>${money(line)} ر.ي</strong>
             </div>
-          </div>`;
+          </div>
+        `;
       }).join('');
+
       totalEl.textContent = money(total);
     }
 
@@ -103,20 +258,164 @@
     function changeQty(id, delta) {
       const item = cart.get(id);
       if (!item) return;
+
       item.qty += delta;
-      if (item.qty <= 0) cart.delete(id);
-      else cart.set(id, item);
+
+      if (item.qty <= 0) {
+        cart.delete(id);
+      } else {
+        cart.set(id, item);
+      }
+
       renderCart();
+    }
+
+    function getCustomerData() {
+      return {
+        customerName: document.getElementById('customerName').value.trim(),
+        customerPhone: document.getElementById('customerPhone').value.trim(),
+        customerArea: document.getElementById('customerArea').value.trim(),
+        customerPay: document.getElementById('customerPay').value.trim(),
+        customerNotes: document.getElementById('customerNotes').value.trim()
+      };
+    }
+
+    function buildOrderText() {
+      const items = getCartItems();
+      const customer = getCustomerData();
+
+      if (!items.length) {
+        return 'السلة فارغة حاليًا.';
+      }
+
+      let text = '';
+      text += 'طلب جديد - متجر العقيق\n';
+      text += '--------------------------\n';
+      text += `الاسم: ${customer.customerName || '-'}\n`;
+      text += `الجوال: ${customer.customerPhone || '-'}\n`;
+      text += `المنطقة: ${customer.customerArea || '-'}\n`;
+      text += `طريقة الدفع: ${customer.customerPay || '-'}\n`;
+      text += `الملاحظات: ${customer.customerNotes || '-'}\n`;
+      text += '--------------------------\n';
+      text += 'المنتجات:\n';
+
+      items.forEach((item, index) => {
+        text += `${index + 1}- ${productLabel(item)}\n`;
+        text += `   السعر: ${money(item.price)} ر.ي\n`;
+        text += `   الكمية: ${item.qty}\n`;
+        text += `   الإجمالي: ${money(item.price * item.qty)} ر.ي\n`;
+      });
+
+      text += '--------------------------\n';
+      text += `الإجمالي الكلي: ${money(getCartTotal())} ر.ي\n`;
+
+      return text;
+    }
+
+    async function copyOrderText() {
+      const text = buildOrderText();
+
+      try {
+        await navigator.clipboard.writeText(text);
+        successBox.style.display = 'block';
+        successBox.textContent = 'تم نسخ الطلب بنجاح.';
+      } catch (err) {
+        successBox.style.display = 'block';
+        successBox.textContent = 'تعذر نسخ الطلب تلقائيًا. انسخه يدويًا.';
+      }
+    }
+
+    function createOrderImageElement() {
+      const items = getCartItems();
+      const customer = getCustomerData();
+
+      const wrapper = document.createElement('div');
+      wrapper.className = 'hidden-capture';
+
+      const box = document.createElement('div');
+      box.className = 'order-image-box';
+
+      let itemsHtml = '';
+      if (items.length) {
+        itemsHtml = items.map((item, index) => `
+          <div class="line">
+            <div><strong>${index + 1}- ${productLabel(item)}</strong></div>
+            <div>السعر: ${money(item.price)} ر.ي</div>
+            <div>الكمية: ${item.qty}</div>
+            <div>الإجمالي: ${money(item.price * item.qty)} ر.ي</div>
+          </div>
+        `).join('');
+      } else {
+        itemsHtml = '<div class="line">السلة فارغة حاليًا.</div>';
+      }
+
+      box.innerHTML = `
+        <h2>طلب متجر العقيق</h2>
+        <div class="line">الاسم: ${customer.customerName || '-'}</div>
+        <div class="line">الجوال: ${customer.customerPhone || '-'}</div>
+        <div class="line">المدينة / المنطقة: ${customer.customerArea || '-'}</div>
+        <div class="line">طريقة الدفع: ${customer.customerPay || '-'}</div>
+        <div class="line">الملاحظات: ${customer.customerNotes || '-'}</div>
+        <h2 style="margin-top:18px">تفاصيل المنتجات</h2>
+        ${itemsHtml}
+        <div class="final-total">الإجمالي الكلي: ${money(getCartTotal())} ر.ي</div>
+      `;
+
+      wrapper.appendChild(box);
+      document.body.appendChild(wrapper);
+
+      return { wrapper, box };
+    }
+
+    async function downloadOrderAsImage() {
+      const items = getCartItems();
+
+      if (!items.length) {
+        successBox.style.display = 'block';
+        successBox.textContent = 'السلة فارغة، أضف منتجات أولًا.';
+        return;
+      }
+
+      if (typeof html2canvas === 'undefined') {
+        successBox.style.display = 'block';
+        successBox.textContent = 'مكتبة تصوير الطلب لم يتم تحميلها.';
+        return;
+      }
+
+      const { wrapper, box } = createOrderImageElement();
+
+      try {
+        const canvas = await html2canvas(box, {
+          backgroundColor: '#0b1b47',
+          scale: 2,
+          useCORS: true
+        });
+
+        const link = document.createElement('a');
+        link.download = 'طلب-متجر-العقيق.png';
+        link.href = canvas.toDataURL('image/png');
+        link.click();
+
+        successBox.style.display = 'block';
+        successBox.textContent = 'تم تجهيز صورة الطلب وتحميلها.';
+      } catch (err) {
+        successBox.style.display = 'block';
+        successBox.textContent = 'حدث خطأ أثناء إنشاء صورة الطلب.';
+      } finally {
+        wrapper.remove();
+      }
     }
 
     async function loadProducts() {
       const res = await fetch('/api/products');
-      const products = await res.json(); window.__products = products;
+      const products = await res.json();
+      window.__products = products;
+
       productsEl.innerHTML = products.map(product => `
         <div class="card">
-          <h3>${product.title}</h3>
+          <h3>${productLabel(product)}</h3>
           <p class="muted">${product.description || ''}</p>
-          <p><strong>${money(product.price)} ر.ي</strong> / ${product.unit}</p>
+          <p><strong>${money(product.price)} ر.ي</strong> / ${product.unit || 'عبوة'}</p>
           <button onclick="addToCart(window.__products.find(p => p.id === '${product.id}'))">أضف إلى السلة</button>
         </div>
       `).join('');
@@ -125,16 +424,28 @@
     document.getElementById('clearBtn').addEventListener('click', () => {
       cart.clear();
       renderCart();
+      successBox.style.display = 'block';
+      successBox.textContent = 'تم تفريغ السلة.';
     });
 
+    document.getElementById('copyBtn').addEventListener('click', copyOrderText);
+    document.getElementById('downloadImageBtn').addEventListener('click', downloadOrderAsImage);
+
     document.getElementById('submitBtn').addEventListener('click', async () => {
+      const items = getCartItems();
+
       const payload = {
-        customerName: document.getElementById('customerName').value,
-        customerPhone: document.getElementById('customerPhone').value,
-        customerArea: document.getElementById('customerArea').value,
-        customerPay: document.getElementById('customerPay').value,
-        customerNotes: document.getElementById('customerNotes').value,
-        items: [...cart.values()].map(item => ({ id: item.id, qty: item.qty }))
+        ...getCustomerData(),
+        items: items.map(item => ({
+          id: item.id,
+          title: item.title,
+          size: item.size || '',
+          pack: item.pack || '',
+          unit: item.unit || 'عبوة',
+          price: item.price,
+          qty: item.qty,
+          total: item.price * item.qty
+        }))
       };
 
       const res = await fetch('/api/orders', {
