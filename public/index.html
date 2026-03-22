@@ -10,26 +10,26 @@
       margin:0;
       background:#06122f;
       color:#fff;
-      font-family:Tahoma,Arial,sans-serif
+      font-family:Tahoma,Arial,sans-serif;
     }
     .wrap{
       max-width:1100px;
       margin:auto;
-      padding:20px
+      padding:20px;
     }
-    h1,h2{
-      margin:0 0 16px
+    h1,h2,h3{
+      margin:0 0 16px;
     }
     .grid{
       display:grid;
       grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
-      gap:16px
+      gap:16px;
     }
     .card{
       background:#0b1b47;
       border:1px solid #1d3d8f;
       border-radius:18px;
-      padding:16px
+      padding:16px;
     }
     button{
       background:#37c95d;
@@ -38,22 +38,22 @@
       border-radius:12px;
       padding:12px 16px;
       font-weight:bold;
-      cursor:pointer
+      cursor:pointer;
     }
     button:hover{
-      opacity:.95
+      opacity:.95;
     }
     .secondary{
       background:#142a66;
-      color:#fff
+      color:#fff;
     }
     .warning{
       background:#b52626;
-      color:#fff
+      color:#fff;
     }
     .info{
       background:#f2b233;
-      color:#111
+      color:#111;
     }
     input,textarea,select{
       width:100%;
@@ -62,45 +62,58 @@
       border-radius:12px;
       border:1px solid #2a468f;
       background:#08183e;
-      color:#fff
+      color:#fff;
+      font-size:16px;
     }
     textarea{
-      min-height:90px
+      min-height:90px;
     }
     .row{
       display:grid;
       grid-template-columns:1fr 1fr;
-      gap:14px
+      gap:14px;
     }
     .muted{
-      opacity:.8
+      opacity:.8;
     }
     .total{
       font-size:24px;
-      font-weight:bold
+      font-weight:bold;
     }
     .success{
       background:#0d4f33;
       padding:14px;
       border-radius:14px;
       margin-top:14px;
-      display:none
+      display:none;
     }
     .actions{
       display:flex;
       gap:12px;
       margin-top:14px;
-      flex-wrap:wrap
+      flex-wrap:wrap;
     }
     .qty-wrap{
       display:flex;
       align-items:center;
-      gap:8px
+      gap:8px;
     }
     .qty-btn{
       min-width:38px;
       padding:8px 10px;
-      border-radius:10px
+      border-radius:10px;
+      font-size:18px;
+      line-height:1;
+    }
+    .qty-input{
+      width:70px;
+      text-align:center;
+      padding:10px;
+      border-radius:10px;
+      border:1px solid #2a468f;
+      background:#08183e;
+      color:#fff;
+      font-weight:bold;
     }
     .order-image-box{
       background:#0b1b47;
@@ -110,30 +123,46 @@
       color:#fff;
       width:900px;
       max-width:100%;
-      direction:rtl
+      direction:rtl;
     }
     .order-image-box h2{
-      margin-bottom:12px
+      margin-bottom:12px;
     }
     .order-image-box .line{
       margin:8px 0;
       padding:10px 0;
-      border-bottom:1px solid rgba(255,255,255,.12)
+      border-bottom:1px solid rgba(255,255,255,.12);
     }
     .order-image-box .final-total{
       margin-top:14px;
       font-size:24px;
-      font-weight:bold
+      font-weight:bold;
     }
     .hidden-capture{
       position:fixed;
       right:-99999px;
       top:0;
-      z-index:-1
+      z-index:-1;
     }
+    .product-title{
+      min-height:52px;
+      line-height:1.6;
+    }
+    .product-price{
+      margin:10px 0 14px;
+      font-size:20px;
+      font-weight:bold;
+    }
+
     @media(max-width:700px){
       .row{
-        grid-template-columns:1fr
+        grid-template-columns:1fr;
+      }
+      .actions{
+        flex-direction:column;
+      }
+      .actions button{
+        width:100%;
       }
     }
   </style>
@@ -211,6 +240,12 @@
       return getCartItems().reduce((sum, item) => sum + (item.price * item.qty), 0);
     }
 
+    function showMessage(message, isError = false) {
+      successBox.style.display = 'block';
+      successBox.textContent = message;
+      successBox.style.background = isError ? '#8f1d1d' : '#0d4f33';
+    }
+
     function renderCart() {
       const items = getCartItems();
 
@@ -235,10 +270,20 @@
 
             <div style="display:flex;justify-content:space-between;gap:8px;align-items:center;margin-top:10px;flex-wrap:wrap">
               <div class="qty-wrap">
-                <button onclick="changeQty('${item.id}', -1)" class="secondary qty-btn">-</button>
-                <span style="padding:0 10px">${item.qty}</span>
-                <button onclick="changeQty('${item.id}', 1)" class="secondary qty-btn">+</button>
+                <button type="button" onclick="changeQty('${item.id}', -1)" class="secondary qty-btn">-</button>
+
+                <input
+                  type="number"
+                  min="1"
+                  value="${item.qty}"
+                  class="qty-input"
+                  onchange="setQty('${item.id}', this.value)"
+                  oninput="setQty('${item.id}', this.value)"
+                >
+
+                <button type="button" onclick="changeQty('${item.id}', 1)" class="secondary qty-btn">+</button>
               </div>
+
               <strong>${money(line)} ر.ي</strong>
             </div>
           </div>
@@ -253,6 +298,7 @@
       existing.qty += 1;
       cart.set(product.id, existing);
       renderCart();
+      showMessage('تمت إضافة المنتج إلى السلة.');
     }
 
     function changeQty(id, delta) {
@@ -264,6 +310,22 @@
       if (item.qty <= 0) {
         cart.delete(id);
       } else {
+        cart.set(id, item);
+      }
+
+      renderCart();
+    }
+
+    function setQty(id, value) {
+      const item = cart.get(id);
+      if (!item) return;
+
+      const qty = parseInt(value, 10);
+
+      if (isNaN(qty) || qty <= 0) {
+        cart.delete(id);
+      } else {
+        item.qty = qty;
         cart.set(id, item);
       }
 
@@ -317,11 +379,9 @@
 
       try {
         await navigator.clipboard.writeText(text);
-        successBox.style.display = 'block';
-        successBox.textContent = 'تم نسخ الطلب بنجاح.';
+        showMessage('تم نسخ الطلب بنجاح.');
       } catch (err) {
-        successBox.style.display = 'block';
-        successBox.textContent = 'تعذر نسخ الطلب تلقائيًا. انسخه يدويًا.';
+        showMessage('تعذر نسخ الطلب تلقائيًا. انسخه يدويًا.', true);
       }
     }
 
@@ -371,14 +431,12 @@
       const items = getCartItems();
 
       if (!items.length) {
-        successBox.style.display = 'block';
-        successBox.textContent = 'السلة فارغة، أضف منتجات أولًا.';
+        showMessage('السلة فارغة، أضف منتجات أولًا.', true);
         return;
       }
 
       if (typeof html2canvas === 'undefined') {
-        successBox.style.display = 'block';
-        successBox.textContent = 'مكتبة تصوير الطلب لم يتم تحميلها.';
+        showMessage('مكتبة تصوير الطلب لم يتم تحميلها.', true);
         return;
       }
 
@@ -396,36 +454,37 @@
         link.href = canvas.toDataURL('image/png');
         link.click();
 
-        successBox.style.display = 'block';
-        successBox.textContent = 'تم تجهيز صورة الطلب وتحميلها.';
+        showMessage('تم تجهيز صورة الطلب وتحميلها.');
       } catch (err) {
-        successBox.style.display = 'block';
-        successBox.textContent = 'حدث خطأ أثناء إنشاء صورة الطلب.';
+        showMessage('حدث خطأ أثناء إنشاء صورة الطلب.', true);
       } finally {
         wrapper.remove();
       }
     }
 
     async function loadProducts() {
-      const res = await fetch('/api/products');
-      const products = await res.json();
-      window.__products = products;
+      try {
+        const res = await fetch('/api/products');
+        const products = await res.json();
+        window.__products = products;
 
-      productsEl.innerHTML = products.map(product => `
-        <div class="card">
-          <h3>${productLabel(product)}</h3>
-          <p class="muted">${product.description || ''}</p>
-          <p><strong>${money(product.price)} ر.ي</strong> / ${product.unit || 'عبوة'}</p>
-          <button onclick="addToCart(window.__products.find(p => p.id === '${product.id}'))">أضف إلى السلة</button>
-        </div>
-      `).join('');
+        productsEl.innerHTML = products.map(product => `
+          <div class="card">
+            <h3 class="product-title">${productLabel(product)}</h3>
+            <p class="muted">${product.description || ''}</p>
+            <p class="product-price"><strong>${money(product.price)} ر.ي</strong> / ${product.unit || 'عبوة'}</p>
+            <button type="button" onclick="addToCart(window.__products.find(p => p.id === '${product.id}'))">أضف إلى السلة</button>
+          </div>
+        `).join('');
+      } catch (error) {
+        productsEl.innerHTML = '<div class="card">تعذر تحميل المنتجات.</div>';
+      }
     }
 
     document.getElementById('clearBtn').addEventListener('click', () => {
       cart.clear();
       renderCart();
-      successBox.style.display = 'block';
-      successBox.textContent = 'تم تفريغ السلة.';
+      showMessage('تم تفريغ السلة.');
     });
 
     document.getElementById('copyBtn').addEventListener('click', copyOrderText);
@@ -433,6 +492,11 @@
 
     document.getElementById('submitBtn').addEventListener('click', async () => {
       const items = getCartItems();
+
+      if (!items.length) {
+        showMessage('السلة فارغة، أضف منتجات قبل إرسال الطلب.', true);
+        return;
+      }
 
       const payload = {
         ...getCustomerData(),
@@ -448,19 +512,22 @@
         }))
       };
 
-      const res = await fetch('/api/orders', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-      });
+      try {
+        const res = await fetch('/api/orders', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
 
-      const data = await res.json();
-      successBox.style.display = 'block';
-      successBox.textContent = data.message + (data.orderId ? ' رقم الطلب: ' + data.orderId : '');
+        const data = await res.json();
+        showMessage(data.message + (data.orderId ? ' رقم الطلب: ' + data.orderId : ''));
 
-      if (data.ok) {
-        cart.clear();
-        renderCart();
+        if (data.ok) {
+          cart.clear();
+          renderCart();
+        }
+      } catch (error) {
+        showMessage('حدث خطأ أثناء إرسال الطلب.', true);
       }
     });
 
